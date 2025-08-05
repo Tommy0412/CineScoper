@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Movies</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta name="robots" content="noindex,nofollow">
+    <script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <style>
+        html { 
+            overflow: auto; 
+            background-color: black;
+        } 
+
+        html, 
+        body, 
+        div, 
+        iframe { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            border: none;
+        } 
+
+        iframe { 
+            display: block; 
+            width: 100%; 
+            border: none; 
+            overflow-y: auto; 
+            overflow-x: hidden;
+        }   
+
+        .topleft {
+            position: absolute;
+            top: 8px;
+            left: 16px;
+            font-size: 18px;
+        }
+
+        button {
+            background-color: red;
+        }
+
+        button:hover {
+            background-color: red;
+        }
+
+        button:focus {
+            background-color: red;
+        }
+
+        a {
+            color: red;
+        }
+
+        a.button {
+            color: red;
+            text-decoration: none;
+        }
+    </style>
+
+    <script>
+        function newSrc() {
+            var e = document.getElementById("MySelectMenu");
+            var newSrc = e.options[e.selectedIndex].value;
+            document.getElementById("MyFrame").src = newSrc;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            let searchParams = new URLSearchParams(window.location.search);
+            let id = searchParams.get("id");
+            if (id) {
+                var podifoltu = 'https://vidsrc.me/embed/movie?tmdb=' + id;
+                document.getElementById('MyFrame').src = podifoltu;
+
+                var selectElement = document.getElementById("MySelectMenu");
+
+                var options = [
+					{ text: "VidSrc", value: 'https://vidsrc.me/embed/movie?tmdb=' + id },
+					{ text: "VidLink", value: 'https://vidlink.pro/movie/' + id },
+					{ text: "EmbedSu", value: 'https://embed.su/embed/movie/' + id },
+					{ text: "VidSrcCC", value: 'https://vidsrc.cc/v2/embed/movie/385687' + id },
+					{ text: "pstream", value: 'https://iframe.pstream.mov/media/tmdb-movie-' + id },
+					{ text: "hexa", value: 'https://hexa.watch/watch/movie/' + id },
+					{ text: "videasy", value: 'https://player.videasy.net/movie/' + id },
+					{ text: "vidfast", value: 'https://vidfast.pro/movie/' + id },
+					{ text: "vidify", value: 'https://vidify.top/embed/movie/' + id },
+					{ text: "letsembed", value: 'https://letsembed.cc/embed/movie/?id=' + id },
+					{ text: "rivestream", value: 'https://rivestream.org/embed?type=movie&id=' + id },
+					{ text: "vidora", value: 'https://vidora.su/movie/' + id },
+					{ text: "vidzee", value: 'https://player.vidzee.wtf/embed/movie/' + id },
+                ];
+
+                options.forEach(function(option) {
+                    var optionElement = document.createElement("option");
+                    optionElement.text = option.text;
+                    optionElement.value = option.value;
+                    selectElement.appendChild(optionElement);
+                });
+            } else {
+                console.log("id parameter not found in URL");
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="flex items-center justify-center h-16">
+        <select id="MySelectMenu" onchange="newSrc()" class="block w-72 p-2 bg-blue-500 border border-blue-600 rounded-lg text-white focus:outline-none focus:ring focus:ring-red-500 hover:bg-blue-600 transition duration-200">
+        </select>
+    </div>  
+    <iframe src="" scrolling="auto" frameborder="0" marginheight="0" marginwidth="0" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" width="100%" height="100%" id="MyFrame"></iframe>
+</body>
+</html>
