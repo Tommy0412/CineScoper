@@ -35,7 +35,7 @@ cd cinescoper
 npm install
 ```
 
-Edit `.env` file in the root directory:
+Rename config.env to .env and Edit `.env` file in the root directory:
 
 ```env
 VITE_SITE_NAME=
