@@ -56,6 +56,8 @@ Then run the app:
 ```bash
 npm run dev
 ```
+Hostinh the app
+upload content of dist folder to cloudflare pages, use with apache, nginx server etc...
 
 ## 👨‍💻 Created By
 
