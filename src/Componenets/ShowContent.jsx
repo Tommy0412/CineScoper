@@ -6,7 +6,7 @@ import Series from "./Series";
 
 function ShowContent(props) {
   const { id, type } = props;
-  const movie = `/movies.html?id=${id}`;
+  const movie = `/moviess.html?id=${id}`;
   const [meta, setMeta] = useState({
     title: '',
     description: '',
