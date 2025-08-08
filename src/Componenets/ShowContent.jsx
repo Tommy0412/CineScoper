@@ -6,7 +6,6 @@ import Series from "./Series";
 
 function ShowContent(props) {
   const { id, type } = props;
-  const movie = `/moviess.html?id=${id}`;
   const [meta, setMeta] = useState({
     title: '',
     description: '',
@@ -14,6 +13,24 @@ function ShowContent(props) {
     image: '',
     directors: []
   });
+
+  const options = [
+    { text: "⭐ VidSrc", value: `https://vidsrc.me/embed/movie?tmdb=${id}` },
+    { text: "⭐ VidLink", value: `https://vidlink.pro/movie/${id}` },
+    { text: "⭐ EmbedSu", value: `https://embed.su/embed/movie/${id}` },
+    { text: "⭐ VidSrcCC", value: `https://vidsrc.cc/v2/embed/movie/385687${id}` },
+    { text: "⭐ Pstream", value: `https://iframe.pstream.mov/media/tmdb-movie-${id}` },
+    { text: "⭐ Videasy", value: `https://player.videasy.net/movie/${id}` },
+    { text: "⭐ Vidfast", value: `https://vidfast.pro/movie/${id}` },
+    { text: "⭐ Vidify", value: `https://vidify.top/embed/movie/${id}` },
+    { text: "⭐ Letsembed", value: `https://letsembed.cc/embed/movie/?id=${id}` },
+    { text: "⭐ Rivestream", value: `https://rivestream.org/embed?type=movie&id=${id}` },
+    { text: "⭐ Vidora", value: `https://vidora.su/movie/${id}` },
+    { text: "⭐ Vidzee", value: `https://player.vidzee.wtf/embed/movie/${id}` },
+	{ text: "⭐ verhdlink", value: `https://verhdlink.cam/movie/${id}` },
+  ];
+
+  const [selectedUrl, setSelectedUrl] = useState(options[0].value);
 
   useEffect(() => {
     const fetchMeta = async () => {
@@ -54,7 +71,7 @@ function ShowContent(props) {
 
   return (
     <div>
-      {/* Inject Schema Markup */}
+      {/* Schema */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -81,35 +98,42 @@ function ShowContent(props) {
         }}
       ></script>
 
-      {/* Movie layout */}
       {type === 'movie' && (
         <div className="mx-28 my-5 md:mx-5 lg:mx-16">
           <ShowActions id={id} type={type} />
-          <div className="w-full">
-            <div className="relative py-3 flex items-end justify-between text-white after:w-full after:h-[2px] after:bg-[#ffffff2f] after:absolute after:bottom-0 after:left-1/2 after:translate-x-[-50%]">
-              <h2 className="text-xl font-semibold">
-                <i className="fa-solid fa-film mr-2"></i>Watch Online
-              </h2>
-            </div>
-            <div className="sm:h-[18rem] w-full h-[28rem] flex justify-center mt-4 relative">
-              <iframe
-                src={movie}
-                className="sm:w-full w-3/4 h-full cursor-pointer"
-                loading="lazy"
-                frameBorder="0"
-                allowFullScreen
-                webkitallowfullscreen="true"
-                mozallowfullscreen="true"
-              ></iframe>
-            </div>
-            <div className="sharethis-inline-share-buttons"></div>
+
+          <div className="sm:h-[18rem] w-full h-[28rem] flex justify-center mt-4 relative">
+            <iframe
+              src={selectedUrl}
+              className="sm:w-full w-3/4 h-full"
+              loading="lazy"
+              frameBorder="0"
+              allowFullScreen
+            ></iframe>
           </div>
+
+          <div className="flex flex-wrap gap-2 my-4 justify-center">
+            {options.map((opt, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedUrl(opt.value)}
+                className={`px-3 py-2 text-sm sm:text-base rounded-lg font-semibold transition-all duration-200 shadow-md
+                  ${selectedUrl === opt.value
+                    ? 'bg-green-600 text-white animate-pulse-glow'
+                    : 'bg-green-500 hover:bg-green-600 text-white'
+                  }`}
+              >
+                {opt.text}
+              </button>
+            ))}
+          </div>
+
+          <div className="sharethis-inline-share-buttons"></div>
           <Cast type={type} id={id} />
           <Recommendations type={type} id={id} />
         </div>
       )}
 
-      {/* TV layout */}
       {type === 'tv' && (
         <div className="mx-28 my-5 md:mx-5 lg:mx-16">
           <ShowActions id={id} type={type} />
@@ -118,6 +142,17 @@ function ShowContent(props) {
           <Recommendations type={type} id={id} />
         </div>
       )}
+
+      <style jsx>{`
+        @keyframes glow {
+          0% { box-shadow: 0 0 5px #22c55e, 0 0 10px #22c55e, 0 0 15px #22c55e; }
+          50% { box-shadow: 0 0 15px #22c55e, 0 0 25px #22c55e, 0 0 35px #22c55e; }
+          100% { box-shadow: 0 0 5px #22c55e, 0 0 10px #22c55e, 0 0 15px #22c55e; }
+        }
+        .animate-pulse-glow {
+          animation: glow 1.5s infinite;
+        }
+      `}</style>
     </div>
   );
 }
