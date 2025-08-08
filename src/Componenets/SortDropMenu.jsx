@@ -10,6 +10,7 @@ function SortDropMenu() {
   const sort = [
     { id: 1, title: "Popular", name: "popular"},
     { id: 2, title: "Top Rated", name: "top_rated"},
+    { id: 3, title: "Now Playing", name: "now_playing"},
   ];
 
   useEffect(()=>{
