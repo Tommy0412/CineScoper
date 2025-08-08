@@ -8,21 +8,31 @@ function AnimationContent() {
     const [data, setData] = useState([]);
     const sort = useSelector(selectSort);
     const page = useSelector(selectPage);
-	const key = import.meta.env.VITE_TMDB_API_KEY;
+    const key = import.meta.env.VITE_TMDB_API_KEY;
+	const siteName = import.meta.env.VITE_SITE_NAME;
 
     useEffect(() => {
+        let url = "";
+        let title = "";
+
         if (sort === 'popular') {
-            fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${key}&include_adult=false&include_null_first_air_dates=false&language=en-US&page=${page}&sort_by=vote_average.desc&vote_count.gte=500&with_genres=16`)
-            .then((res) => res.json())
-            .then((data) => setData(data.results));
-            document.title = 'embedsito - Popular Anime movies and Tv shows watch online';
+            url = `https://api.themoviedb.org/3/discover/tv?api_key=${key}&include_adult=false&include_null_first_air_dates=false&language=en-US&page=${page}&sort_by=vote_average.desc&vote_count.gte=500&with_genres=16`;
+			title = `${siteName} - Popular Anime movies and Tv shows watch online`;
         } else if (sort === 'top_rated') {
-            fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${key}&include_adult=false&include_null_first_air_dates=false&language=en-US&page=${page}&sort_by=vote_count.desc&with_genres=16`)
-            .then((res) => res.json())
-            .then((data) => setData(data.results));
-            document.title = 'embedsito - Top rated anime movies and tv shows watch online';
+            url = `https://api.themoviedb.org/3/discover/tv?api_key=${key}&include_adult=false&include_null_first_air_dates=false&language=en-US&page=${page}&sort_by=vote_count.desc&with_genres=16`;
+			title = `${siteName} - Top rated anime movies and tv shows watch online`;
+        } else if (sort === 'now_playing') {
+            url = `https://api.themoviedb.org/3/tv/on_the_air?api_key=${key}&include_adult=false&include_null_first_air_dates=false&language=en-US&page=${page}&with_genres=16`;
+			title = `${siteName} - Now Playing Anime TV Shows online`;
         }
-        window.scrollTo(0,0);
+
+        if (url) {
+            fetch(url)
+                .then((res) => res.json())
+                .then((data) => setData(data.results || []));
+            document.title = title;
+        }
+        window.scrollTo(0, 0);
     }, [sort, page]);
 
     return (
@@ -31,7 +41,7 @@ function AnimationContent() {
                 <ShowCard key={index} movie={movie} index={index} value={0} type={'tv'} />
             ))}
         </div>
-    )
+    );
 }
 
 export default AnimationContent;
