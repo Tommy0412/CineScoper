@@ -27,43 +27,49 @@ function ShowContent(props) {
     { text: "⭐ Rivestream", value: `https://rivestream.org/embed?type=movie&id=${id}` },
     { text: "⭐ Vidora", value: `https://vidora.su/movie/${id}` },
     { text: "⭐ Vidzee", value: `https://player.vidzee.wtf/embed/movie/${id}` },
-	{ text: "⭐ verhdlink", value: `https://verhdlink.cam/movie/${id}` },
+	{ text: "⭐ verhdlink", value: `https://verhdlink.cam/movie/${meta.imdbId}` },
+	{ text: "⭐ Embed69", value: `https://embed69.org/f/${meta.imdbId}` },
+	{ text: "⭐ Meinecloud", value: `https://meinecloud.click/movie/${meta.imdbId}` },
+	{ text: "⭐ Frembed", value: `https://frembed.icu/api/film.php?id=${id}` },
   ];
 
   const [selectedUrl, setSelectedUrl] = useState(options[0].value);
 
-  useEffect(() => {
-    const fetchMeta = async () => {
-      const apiKey = import.meta.env.VITE_TMDB_API_KEY;
-      const url = `https://api.themoviedb.org/3/${type}/${id}?api_key=${apiKey}&language=en-US&append_to_response=credits`;
+useEffect(() => {
+  const fetchMeta = async () => {
+    const apiKey = import.meta.env.VITE_TMDB_API_KEY;
+    const url = `https://api.themoviedb.org/3/${type}/${id}?api_key=${apiKey}&language=en-US&append_to_response=credits,external_ids`;
 
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
 
-        let directors = [];
-        if (data.credits && data.credits.crew) {
-          directors = data.credits.crew
-            .filter(member => member.job === 'Director')
-            .map(d => d.name);
-        }
-
-        setMeta({
-          title: data.title || data.name || 'Unknown Title',
-          description: data.overview || 'No description available.',
-          releaseDate: data.release_date || data.first_air_date || '',
-          image: data.poster_path
-            ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
-            : '',
-          directors
-        });
-      } catch (error) {
-        console.error('Failed to fetch TMDB metadata:', error);
+      let directors = [];
+      if (data.credits && data.credits.crew) {
+        directors = data.credits.crew
+          .filter(member => member.job === 'Director')
+          .map(d => d.name);
       }
-    };
 
-    fetchMeta();
-  }, [id, type]);
+      const imdbId = data.external_ids?.imdb_id || '';
+
+      setMeta({
+        title: data.title || data.name || 'Unknown Title',
+        description: data.overview || 'No description available.',
+        releaseDate: data.release_date || data.first_air_date || '',
+        image: data.poster_path
+          ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
+          : '',
+        directors,
+        imdbId 
+      });
+    } catch (error) {
+      console.error('Failed to fetch TMDB metadata:', error);
+    }
+  };
+
+  fetchMeta();
+}, [id, type]);
 
   const directorSchema = meta.directors.length
     ? meta.directors.map(name => ({ "@type": "Person", name }))
@@ -99,16 +105,17 @@ function ShowContent(props) {
       ></script>
 
       {type === 'movie' && (
-        <div className="mx-28 my-5 md:mx-5 lg:mx-16">
+        <div className="mx-4 my-5 md:mx-5 lg:mx-16 xl:mx-28 overflow-x-hidden">
           <ShowActions id={id} type={type} />
 
           <div className="sm:h-[18rem] w-full h-[28rem] flex justify-center mt-4 relative">
             <iframe
               src={selectedUrl}
               className="sm:w-full w-3/4 h-full"
-              loading="lazy"
               frameBorder="0"
-              allowFullScreen
+			  allowFullScreen={true}
+              width="100%"
+              height="100%"
             ></iframe>
           </div>
 
@@ -135,7 +142,7 @@ function ShowContent(props) {
       )}
 
       {type === 'tv' && (
-        <div className="mx-28 my-5 md:mx-5 lg:mx-16">
+        <div className="mx-4 my-5 md:mx-5 lg:mx-16 xl:mx-28 overflow-x-hidden">
           <ShowActions id={id} type={type} />
           <Series id={id} />
           <Cast type={type} id={id} />
