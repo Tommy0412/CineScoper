@@ -11,6 +11,7 @@ function WatchEp() {
   const [episodeData, setEpisodeData] = useState(null);
 
   const currentEpisode = parseInt(episode, 10);
+  const formattedEpisode = String(currentEpisode).padStart(2, '0'); // Adds leading zero if needed
   const currentUrl = window.location.href;
   const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w780';
 
@@ -26,6 +27,8 @@ function WatchEp() {
     { text: "⭐ Rivestream", value: `https://rivestream.org/embed?type=tv&id=${id}&season=${season}&episode=${currentEpisode}` },
     { text: "⭐ Vidora", value: `https://vidora.su/tv/${id}/${season}/${currentEpisode}` },
     { text: "⭐ Vidzee", value: `https://player.vidzee.wtf/embed/tv/${id}/${season}/${currentEpisode}` },
+	{ text: "⭐ Embed69", value: `https://embed69.org/f/${showData?.imdbId}-${season}x${formattedEpisode}` },
+	{ text: "⭐ Frembed", value: `https://frembed.icu/api/serie.php?id=${id}&sa=${season}&epi=${currentEpisode}` },
   ];
 
   const [selectedUrl, setSelectedUrl] = useState(options[0].value);
@@ -44,7 +47,11 @@ function WatchEp() {
         );
         const episodeJson = await episodeRes.json();
         setEpisodeData(episodeJson);
-
+		
+        const externalIdsRes = await fetch(`https://api.themoviedb.org/3/tv/${id}/external_ids?api_key=${apiKey}`);
+        const externalIdsJson = await externalIdsRes.json();
+        const imdbId = externalIdsJson.imdb_id || '';
+		
         const showName = showJson.name || 'TV Show';
         document.title = `Watch ${showName} - Season ${season} Episode ${currentEpisode}`;
 
@@ -105,7 +112,12 @@ function WatchEp() {
         scriptTag.id = 'schema-episode';
         scriptTag.textContent = JSON.stringify(schema);
         document.head.appendChild(scriptTag);
-
+		
+        setShowData(prevState => ({
+        ...prevState,
+        imdbId 
+        }));
+		
       } catch (error) {
         console.error('Error fetching show or episode details:', error);
       }
