@@ -141,21 +141,21 @@ function Search() {
       const isMovie = item.media_type === 'movie';
       const typePath = isMovie ? 'movie' : 'tv';
       const tmdbId = item.id;
-      const url = `${window.location.origin}/show/${typePath}/${tmdbId}`;
+      const url = `/show/${typePath}/${tmdbId}`;
 
       return (
         <div
           key={idx}
           className="bg-gray-900 rounded overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
         >
-          <a href={url}>
-            <img
-              className="w-full h-auto"
-              src={`https://wsrv.nl/?url=https://image.tmdb.org/t/p/w300${item.poster_path}&w=300&h=400&output=webp`}
-              alt={item.title || item.name}
-              loading="lazy"
-            />
-          </a>
+                    <Link to={url}>
+  <img
+    className="w-full h-auto"
+    src={`https://wsrv.nl/?url=https://image.tmdb.org/t/p/w300${item.poster_path}&w=300&h=400&output=webp`}
+    alt={item.title || item.name}
+    loading="lazy"
+  />
+</Link>
           <div className="p-3">
             <h3 className="text-lg font-semibold">
               {item.title || item.name}
