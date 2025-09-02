@@ -6,16 +6,18 @@ import Recommendations from './Recommendations';
 
 function WatchEp() {
   const { id, type, season, episode } = useParams();
-  const [totalEpisodes, setTotalEpisodes] = useState(null);
-  const [showData, setShowData] = useState(null);
-  const [episodeData, setEpisodeData] = useState(null);
-
   const currentEpisode = parseInt(episode, 10);
   const formattedEpisode = String(currentEpisode).padStart(2, '0'); // Adds leading zero if needed
   const currentUrl = window.location.href;
+
+  const [totalEpisodes, setTotalEpisodes] = useState(null);
+  const [showData, setShowData] = useState(null);
+  const [episodeData, setEpisodeData] = useState(null);
+  const [selectedUrl, setSelectedUrl] = useState('');
+
   const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w780';
 
-  const options = [
+  const generateOptions = () => [
     { text: "⭐ VidSrc", value: `https://vidsrc.xyz/embed/tv/${id}/${season}-${currentEpisode}` },
     { text: "⭐ VidLink", value: `https://vidlink.pro/tv/${id}/${season}/${currentEpisode}` },
     { text: "⭐ EmbedSu", value: `https://embed.su/embed/tv/${id}/${season}/${currentEpisode}` },
@@ -27,11 +29,15 @@ function WatchEp() {
     { text: "⭐ Rivestream", value: `https://rivestream.org/embed?type=tv&id=${id}&season=${season}&episode=${currentEpisode}` },
     { text: "⭐ Vidora", value: `https://vidora.su/tv/${id}/${season}/${currentEpisode}` },
     { text: "⭐ Vidzee", value: `https://player.vidzee.wtf/embed/tv/${id}/${season}/${currentEpisode}` },
-	{ text: "⭐ Embed69", value: `https://embed69.org/f/${showData?.imdbId}-${season}x${formattedEpisode}` },
-	{ text: "⭐ Frembed", value: `https://frembed.icu/api/serie.php?id=${id}&sa=${season}&epi=${currentEpisode}` },
+    { text: "⭐ Embed69", value: `https://embed69.org/f/${showData?.imdbId}-${season}x${formattedEpisode}` },
+    { text: "⭐ Frembed", value: `https://frembed.icu/api/serie.php?id=${id}&sa=${season}&epi=${currentEpisode}` },
   ];
 
-  const [selectedUrl, setSelectedUrl] = useState(options[0].value);
+  const options = generateOptions();
+
+  useEffect(() => {
+    setSelectedUrl(options[0].value);
+  }, [episode, id, season]);
 
   useEffect(() => {
     const apiKey = import.meta.env.VITE_TMDB_API_KEY;
@@ -47,11 +53,11 @@ function WatchEp() {
         );
         const episodeJson = await episodeRes.json();
         setEpisodeData(episodeJson);
-		
+
         const externalIdsRes = await fetch(`https://api.themoviedb.org/3/tv/${id}/external_ids?api_key=${apiKey}`);
         const externalIdsJson = await externalIdsRes.json();
         const imdbId = externalIdsJson.imdb_id || '';
-		
+
         const showName = showJson.name || 'TV Show';
         document.title = `Watch ${showName} - Season ${season} Episode ${currentEpisode}`;
 
@@ -63,61 +69,7 @@ function WatchEp() {
         }
         canonicalLink.href = currentUrl;
 
-        let directors = [];
-        if (episodeJson.credits && episodeJson.credits.crew) {
-          directors = episodeJson.credits.crew.filter(member => member.job === 'Director');
-        }
-
-        const schema = {
-          "@context": "https://schema.org",
-          "@type": "TVEpisode",
-          "name": episodeJson.name || `${showName} - S${season}E${currentEpisode}`,
-          "episodeNumber": currentEpisode,
-          "seasonNumber": parseInt(season),
-          "description": episodeJson.overview || showJson.overview || "",
-          "image": episodeJson.still_path ? TMDB_IMAGE_BASE + episodeJson.still_path : undefined,
-          "director": directors.length > 0
-            ? directors.map(d => ({
-              "@type": "Person",
-              "name": d.name
-            }))
-            : undefined,
-          "partOfSeries": {
-            "@type": "TVSeries",
-            "name": showName
-          },
-          "datePublished": episodeJson.air_date || "",
-          "url": currentUrl,
-          "potentialAction": {
-            "@type": "WatchAction",
-            "target": typeof window !== 'undefined' ? window.location.href : '',
-            "expectsAcceptanceOf": {
-              "@type": "Offer",
-              "availability": "https://schema.org/InStock",
-              "price": "0",
-              "priceCurrency": "USD"
-            }
-          }
-        };
-
-        Object.keys(schema).forEach(key => {
-          if (schema[key] === undefined) delete schema[key];
-        });
-
-        let scriptTag = document.getElementById('schema-episode');
-        if (scriptTag) scriptTag.remove();
-
-        scriptTag = document.createElement('script');
-        scriptTag.type = 'application/ld+json';
-        scriptTag.id = 'schema-episode';
-        scriptTag.textContent = JSON.stringify(schema);
-        document.head.appendChild(scriptTag);
-		
-        setShowData(prevState => ({
-        ...prevState,
-        imdbId 
-        }));
-		
+        setShowData(prevState => ({ ...prevState, imdbId }));
       } catch (error) {
         console.error('Error fetching show or episode details:', error);
       }
@@ -137,14 +89,10 @@ function WatchEp() {
     fetchEpisodes();
   }, [id, season, currentEpisode]);
 
-  const previousEpisodeURL =
-    currentEpisode > 1 ? `/show/tv/${id}/s/${season}/e/${currentEpisode - 1}` : null;
-
-  const nextEpisodeURL =
-    totalEpisodes && currentEpisode < totalEpisodes
-      ? `/show/tv/${id}/s/${season}/e/${currentEpisode + 1}`
-      : null;
-
+  const previousEpisodeURL = currentEpisode > 1 ? `/show/tv/${id}/s/${season}/e/${currentEpisode - 1}` : null;
+  const nextEpisodeURL = totalEpisodes && currentEpisode < totalEpisodes
+    ? `/show/tv/${id}/s/${season}/e/${currentEpisode + 1}`
+    : null;
   const allEpisodesURL = `/show/tv/${id}`;
 
   return (
@@ -163,7 +111,7 @@ function WatchEp() {
               src={selectedUrl}
               className="sm:w-full w-3/4 h-full"
               frameBorder="0"
-              allowFullScreen={true}
+              allowFullScreen
               width="100%"
               height="100%"
             ></iframe>
@@ -215,18 +163,16 @@ function WatchEp() {
 
         <Cast type={'tv'} id={id} />
         <Recommendations type={'tv'} id={id} />
-      </div>
 
-      <style jsx>{`
-        @keyframes glow {
-          0% { box-shadow: 0 0 5px #22c55e, 0 0 10px #22c55e, 0 0 15px #22c55e; }
-          50% { box-shadow: 0 0 15px #22c55e, 0 0 25px #22c55e, 0 0 35px #22c55e; }
-          100% { box-shadow: 0 0 5px #22c55e, 0 0 10px #22c55e, 0 0 15px #22c55e; }
-        }
-        .animate-pulse-glow {
-          animation: glow 1.5s infinite;
-        }
-      `}</style>
+        <style jsx>{`
+          @keyframes glow {
+            0% { box-shadow: 0 0 5px #22c55e, 0 0 10px #22c55e, 0 0 15px #22c55e; }
+            50% { box-shadow: 0 0 15px #22c55e, 0 0 25px #22c55e, 0 0 35px #22c55e; }
+            100% { box-shadow: 0 0 5px #22c55e, 0 0 10px #22c55e, 0 0 15px #22c55e; }
+          }
+          .animate-pulse-glow { animation: glow 1.5s infinite; }
+        `}</style>
+      </div>
     </>
   );
 }
